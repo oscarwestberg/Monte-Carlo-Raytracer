@@ -13,7 +13,10 @@
 
 class Surface
 {
-
+private:
+    
+public:
+    bool intersects();
 };
 
 #endif /* Surface_hpp */

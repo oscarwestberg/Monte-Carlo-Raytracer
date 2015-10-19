@@ -5,22 +5,22 @@
 
 #include <iostream>
 #include <glm/vec3.hpp>
-#include "Scene.hpp"
 #include "Sphere.hpp"
+#include "Ray.hpp"
 
 const int screenWidth = 800, screenHeight = 600;
 
 int main() {
     glm::vec3 radianceArray[screenWidth * screenHeight];
-    Scene scene;
+    std::vector<Surface> surfaces;
     
     // Add objects to the scene
     glm::vec3 colorRed(255, 0.0, 0.0);
     Sphere s1(glm::vec3(0.0, 1.0, 0.0), 2, colorRed);
     Sphere s2(glm::vec3(0.0, -1.0, 0.0), 1.5, colorRed);
     
-    scene.addSurface(s1);
-    scene.addSurface(s2);
+    surfaces.push_back(s1);
+    surfaces.push_back(s2);
     
     // ----------------------------------------------
     // Loop through every pixel and cast ray into scene
@@ -29,18 +29,15 @@ int main() {
         for (int y = 0; y < screenHeight; y++) {
             // Create ray
             // Shoot ray into scene
-            // Compare ray with every object in scene
-            // Find the smallest distance to an object
+            Ray ray(&surfaces);
+            glm::vec3 rayOrig;
+            glm::vec3 rayDir;
+            float depth = 0;
             
-            // If we found an intersection, cast shadow ray
-            // Compare shadow ray with every object
-            
-            // If point isn't in shadow, update with object's color and light's brightness
-            
-            
+            glm::vec3 color = ray.trace(rayOrig, rayDir, depth);
             
             // Temp value
-            radianceArray[screenWidth * y + x] = glm::vec3(255,125,0);
+            radianceArray[screenWidth * y + x] = color;
         }
     }
     
