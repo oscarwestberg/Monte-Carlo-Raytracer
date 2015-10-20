@@ -16,3 +16,10 @@ For the course TNCG15 at Linköping University. A Monte-Carlo raytracer that mod
 * http://web.cs.wpi.edu/~emmanuel/courses/cs563/write_ups/zackw/realistic_raytracing.html  
 * http://www.kevinbeason.com/smallpt/  
 * http://www.scratchapixel.com/index.php  
+
+# Todo
+* Define light source (scene class or global variables)  
+* Trace ray (Ray.trace())  
+* Calculate intersection (Surface.intersects, implementation in subclasses)  
+* Generate camera rays with respect to the image plane (in main, once per pixel)  
+* Define other kinds of surfaces (Walls)  

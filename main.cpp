@@ -14,8 +14,11 @@ int main() {
     glm::vec3 radianceArray[screenWidth * screenHeight];
     std::vector<Surface> surfaces;
     
-    // Add objects to the scene
+    // ----------------------------------------------
+    // Create the scene
+    // ----------------------------------------------
     glm::vec3 colorRed(255, 0.0, 0.0);
+    
     Sphere s1(glm::vec3(0.0, 1.0, 0.0), 2, colorRed);
     Sphere s2(glm::vec3(0.0, -1.0, 0.0), 1.5, colorRed);
     
