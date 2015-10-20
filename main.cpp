@@ -3,6 +3,10 @@
 //  Monte-Carlo-Raytracer-Project
 //
 
+#ifdef _WIN32
+    #define _CRT_SECURE_NO_DEPRECATE
+#endif
+
 #include <iostream>
 #include <math.h>
 #include <glm/glm.hpp>
@@ -10,15 +14,11 @@
 #include "Ray.hpp"
 #include "Scene.hpp"
 
-#ifdef WIN32
-    #define _CRT_SECURE_NO_DEPRECATE
-#endif
-
 
 const int screenWidth = 800, screenHeight = 600;
 
 int main() {
-    glm::vec3 radianceArray[screenWidth * screenHeight];
+    std::vector<glm::vec3> radianceArray;
     std::vector<Surface> surfaces;
     Scene scene(&surfaces);
     
@@ -53,7 +53,7 @@ int main() {
             // Shoot ray into scene
             Ray ray(&scene);
             glm::vec3 color = ray.trace(rayOrig, rayDir, 0.0, 0);
-            radianceArray[screenWidth * y + x] = color;
+            radianceArray.push_back(color);
         }
     }
     
@@ -64,7 +64,7 @@ int main() {
     fprintf(file, "P3\n%d %d\n%d\n", screenWidth, screenHeight, 255);
     
     for (int i = 0; i < screenWidth * screenHeight; i++)
-        fprintf(file,"%i %i %i ", (int)radianceArray[i].x, (int)radianceArray[i].y, (int)radianceArray[i].z);
+        fprintf(file,"%i %i %i ", (int)radianceArray.at(i).x, (int)radianceArray.at(i).y, (int)radianceArray.at(i).z);
     
     std::cout << "Created file\n";
     

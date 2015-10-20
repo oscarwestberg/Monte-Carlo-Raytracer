@@ -10,7 +10,7 @@ Ray::Ray(Scene *s) {
 }
 
 glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounces) {
-    glm::vec3 c(0.0, 255, 0.0);
+    glm::vec3 c(0.0, 255.0, 100.0);
     
     // Compare ray with every object in scene
     // Find the smallest distance to an object
