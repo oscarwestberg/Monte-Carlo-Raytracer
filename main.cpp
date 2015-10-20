@@ -7,12 +7,14 @@
 #include <glm/vec3.hpp>
 #include "Sphere.hpp"
 #include "Ray.hpp"
+#include "Scene.hpp"
 
 const int screenWidth = 800, screenHeight = 600;
 
 int main() {
     glm::vec3 radianceArray[screenWidth * screenHeight];
     std::vector<Surface> surfaces;
+    Scene scene(&surfaces);
     
     // ----------------------------------------------
     // Create the scene
@@ -32,7 +34,7 @@ int main() {
         for (int y = 0; y < screenHeight; y++) {
             // Create ray
             // Shoot ray into scene
-            Ray ray(&surfaces);
+            Ray ray(&scene);
             glm::vec3 rayOrig;
             glm::vec3 rayDir;
             float depth = 0;
@@ -43,7 +45,6 @@ int main() {
             radianceArray[screenWidth * y + x] = color;
         }
     }
-    
     
     // ----------------------------------------------
     // Save radianceArray to file

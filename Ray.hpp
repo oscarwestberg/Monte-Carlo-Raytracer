@@ -9,14 +9,15 @@
 #include <stdio.h>
 #include <vector>
 #include "Surface.hpp"
+#include "Scene.hpp"
 
 class Ray
 {
 private:
-    std::vector<Surface> *surfaces;
+    Scene* scene;
     
 public:
-    Ray(std::vector<Surface> *s);
+    Ray(Scene *s);
     glm::vec3 trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth);
 };
 

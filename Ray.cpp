@@ -5,8 +5,8 @@
 
 #include "Ray.hpp"
 
-Ray::Ray(std::vector<Surface> *s) {
-    surfaces = s;
+Ray::Ray(Scene *s) {
+    scene = s;
 }
 
 glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth) {
@@ -14,7 +14,7 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth) {
     
     // Compare ray with every object in scene
     // Find the smallest distance to an object
-    for (int i = 0; i < surfaces->size(); i++) {
+    for (int i = 0; i < scene->objects->size(); i++) {
         
     }
     
