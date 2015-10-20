@@ -9,7 +9,7 @@ Ray::Ray(Scene *s) {
     scene = s;
 }
 
-glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth) {
+glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounces) {
     glm::vec3 c(0.0, 255, 0.0);
     
     // Compare ray with every object in scene

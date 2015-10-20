@@ -4,7 +4,9 @@
 //
 
 #include <iostream>
-#include <glm/vec3.hpp>
+#include <math.h>
+//#include <glm/vec3.hpp>
+#include <glm/glm.hpp>
 #include "Sphere.hpp"
 #include "Ray.hpp"
 #include "Scene.hpp"
@@ -21,8 +23,8 @@ int main() {
     // ----------------------------------------------
     glm::vec3 colorRed(255, 0.0, 0.0);
     
-    Sphere s1(glm::vec3(0.0, 1.0, 0.0), 2, colorRed);
-    Sphere s2(glm::vec3(0.0, -1.0, 0.0), 1.5, colorRed);
+    Sphere s1(glm::vec3(0.0, 1.0, -5.0), 2, colorRed);
+    Sphere s2(glm::vec3(0.0, -1.0, -3.0), 1.5, colorRed);
     
     surfaces.push_back(s1);
     surfaces.push_back(s2);
@@ -32,16 +34,21 @@ int main() {
     // ----------------------------------------------
     for (int x = 0; x < screenWidth; x++) {
         for (int y = 0; y < screenHeight; y++) {
-            // Create ray
+            
+            // Get screen space coordiantes from normalized device coordinates
+            float aspectRatio = (float)screenWidth/(float)screenHeight;
+            float pixelX = (((x + 0.5) / screenWidth) * 2 - 1) * aspectRatio * tan(scene.fov/2.0);
+            float pixelY = (1 - 2 * ((y + 0.5) / screenHeight)) * tan(scene.fov/2.0);
+            
+            // Define origin and direction
+            glm::vec3 rayOrig = scene.cameraPos;
+            glm::vec3 rayDir = glm::vec3(pixelX, pixelY, scene.cameraDir.z) - rayOrig;
+            rayDir = glm::normalize(rayDir);
+            
+            // This step can be done many times
             // Shoot ray into scene
             Ray ray(&scene);
-            glm::vec3 rayOrig;
-            glm::vec3 rayDir;
-            float depth = 0;
-            
-            glm::vec3 color = ray.trace(rayOrig, rayDir, depth);
-            
-            // Temp value
+            glm::vec3 color = ray.trace(rayOrig, rayDir, 0.0, 0);
             radianceArray[screenWidth * y + x] = color;
         }
     }
