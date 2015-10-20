@@ -5,11 +5,15 @@
 
 #include <iostream>
 #include <math.h>
-//#include <glm/vec3.hpp>
 #include <glm/glm.hpp>
 #include "Sphere.hpp"
 #include "Ray.hpp"
 #include "Scene.hpp"
+
+#ifdef WIN32
+    #define _CRT_SECURE_NO_DEPRECATE
+#endif
+
 
 const int screenWidth = 800, screenHeight = 600;
 

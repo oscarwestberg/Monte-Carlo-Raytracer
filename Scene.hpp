@@ -9,7 +9,6 @@
 
 #include <stdio.h>
 #include <vector>
-#include <math.h>
 #include "Surface.hpp"
 
 class Scene
