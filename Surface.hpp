@@ -9,6 +9,7 @@
 #define Surface_hpp
 
 #include <stdio.h>
+#include "glm/glm.hpp"
 #include "glm/vec3.hpp"
 
 class Surface
@@ -16,7 +17,7 @@ class Surface
 private:
     
 public:
-    bool intersects();
+	virtual bool intersects(glm::vec3 rayOrig, glm::vec3 rayDir, float &t0, float &t1);
 };
 
 #endif /* Surface_hpp */

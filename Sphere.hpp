@@ -9,6 +9,8 @@
 
 #include <stdio.h>
 #include "Surface.hpp"
+#include <cmath>
+#include <math.h>
 
 class Sphere : public Surface
 {
@@ -19,6 +21,7 @@ private:
     
 public:
     Sphere(glm::vec3 ce, float r, glm::vec3 co);
+	bool intersects(glm::vec3 rayOrig, glm::vec3 rayDir, float &t0, float &t1);
 };
 
 #endif /* Sphere_hpp */
