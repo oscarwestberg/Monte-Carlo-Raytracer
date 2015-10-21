@@ -38,9 +38,8 @@ int main() {
     // ----------------------------------------------
     // Loop through every pixel and cast ray into scene
     // ----------------------------------------------
-    for (int x = 0; x < screenWidth; x++) {
-        for (int y = 0; y < screenHeight; y++) {
-            
+    for (int y = 0; y < screenHeight; y++) {
+        for (int x = 0; x < screenWidth; x++) {
             // Get screen space coordiantes from normalized device coordinates
             float aspectRatio = (float)screenWidth/(float)screenHeight;
             float pixelX = (((x + 0.5) / screenWidth) * 2 - 1) * aspectRatio * tan(scene.fov/2.0);
@@ -66,7 +65,7 @@ int main() {
     fprintf(file, "P3\n%d %d\n%d\n", screenWidth, screenHeight, 255);
     
     for (int i = 0; i < screenWidth * screenHeight; i++)
-        fprintf(file,"%i %i %i ", (int)radianceArray.at(i).x, (int)radianceArray.at(i).y, (int)radianceArray.at(i).z);
+        fprintf(file," %i %i %i", (int)radianceArray.at(i).x, (int)radianceArray.at(i).y, (int)radianceArray.at(i).z);
     
     std::cout << "Created file\n";
     
