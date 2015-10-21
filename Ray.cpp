@@ -11,19 +11,27 @@ Ray::Ray(Scene *s) {
 }
 
 glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounces) {
-	glm::vec3 c(0.0, 255.0, 100.0);
-	glm::vec3 c2(255.0, 0, 100.0);
+	glm::vec3 c(0.0, 0.0, 255.0);
 
 	// Compare ray with every object in scene
 	// Find the smallest distance to an object
-	float t0, t1, nearestIntersection = INF;
+	float t0, t1, tNear = INF;
+    Surface *s = nullptr;
+    
 	for (auto &o : *scene->objects) {
-		if (o.intersects(rayOrig, rayDir, t0, t1)) {
-			if (nearestIntersection > t0) nearestIntersection = t0;
-			return c2;
+		if (o->intersects(rayOrig, rayDir, t0, t1)) {
+            if (t0 < tNear) {
+                tNear = t0;
+                s = o;
+            }
 		}
 	}
-	glm::vec3 intersectPos = rayOrig + nearestIntersection*rayDir;
+    
+    if (s != nullptr) {
+        return s->color;
+    }
+    
+//	glm::vec3 intersectPos = rayOrig + nearestIntersection*rayDir;
 	// If we found an intersection, cast shadow ray
 	// Compare shadow ray with every object
 	//Ray ray(&scene);
