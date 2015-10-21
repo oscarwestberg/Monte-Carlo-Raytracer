@@ -12,6 +12,9 @@ Sphere::Sphere(glm::vec3 ce, float r, glm::vec3 co) {
     color = co;
 };
 
+
+// Checks for intersection with a ray. Code obtained from:
+// http://www.scratchapixel.com/code.php?id=3&origin=/lessons/3d-basic-rendering/introduction-to-ray-tracing
 bool Sphere::intersects(glm::vec3 rayOrig, glm::vec3 rayDir, float &t0, float &t1) {
 	glm::vec3 l = center - rayOrig;
 	float tca = glm::dot(l, rayDir);
