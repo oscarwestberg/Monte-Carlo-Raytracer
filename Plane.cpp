@@ -6,7 +6,7 @@
 #include "Plane.hpp"
 
 Plane::Plane(glm::vec3 n, glm::vec3 c, glm::vec3 p) {
-    normal = n;
+    normal = glm::normalize(n);
     color = c;
     point = p;
 }

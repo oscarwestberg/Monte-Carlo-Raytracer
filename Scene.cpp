@@ -17,5 +17,5 @@ Scene::Scene(std::vector<Surface>* o) {
     cameraPos = glm::vec3(0.0, 0.0, 0.0);
     cameraDir = glm::vec3(0.0, 0.0, -1.0);
     
-    lightPos1 = glm::vec3(0.0, 0.0, 0.0);
+    lightPos1 = glm::vec3(0.0, 4.0, -5.0);
 }
