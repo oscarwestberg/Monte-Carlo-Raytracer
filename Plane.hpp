@@ -12,7 +12,6 @@
 class Plane : public Surface {
 private:
     glm::vec3 normal;
-    glm::vec3 color;
     glm::vec3 point;
     
 public:

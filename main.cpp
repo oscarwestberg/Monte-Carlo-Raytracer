@@ -11,6 +11,7 @@
 #include <math.h>
 #include <glm/glm.hpp>
 #include "Sphere.hpp"
+#include "Plane.hpp"
 #include "Ray.hpp"
 #include "Scene.hpp"
 
@@ -19,19 +20,20 @@ const int screenWidth = 800, screenHeight = 600;
 
 int main() {
     std::vector<glm::vec3> radianceArray;
-    std::vector<Surface> surfaces;
+    std::vector<Surface*> surfaces;
     Scene scene(&surfaces);
     
     // ----------------------------------------------
     // Create the scene
     // ----------------------------------------------
-    glm::vec3 colorRed(255, 0.0, 0.0);
+    glm::vec3 colorRed(255.0, 0.0, 0.0);
+    glm::vec3 colorGreen(0.0, 255.0, 0.0);
     
-    Sphere s1(glm::vec3(0.0, 1.0, -5.0), 2, colorRed);
-    Sphere s2(glm::vec3(0.0, -1.0, -3.0), 1.5, colorRed);
+    Sphere s1(glm::vec3(0.0, 1.0, -2.0), 2, colorRed);
+    Sphere s2(glm::vec3(0.0, 0.0, -10.0), 10.5, colorGreen);
     
-    surfaces.push_back(s1);
-    surfaces.push_back(s2);
+    surfaces.push_back(&s1);
+    surfaces.push_back(&s2);
     
     // ----------------------------------------------
     // Loop through every pixel and cast ray into scene

@@ -14,7 +14,7 @@
 class Scene
 {
 public:
-    std::vector<Surface>* objects;
+    std::vector<Surface*>* objects;
     int maxBounces;
     float maxDepth;
     float fov;
@@ -25,7 +25,7 @@ public:
     
     glm::vec3 lightPos1;
     
-    Scene(std::vector<Surface>* o);
+    Scene(std::vector<Surface*>* o);
 };
 
 #endif /* Scene_hpp */
