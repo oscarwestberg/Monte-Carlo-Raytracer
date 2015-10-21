@@ -29,11 +29,22 @@ int main() {
     glm::vec3 colorRed(255.0, 0.0, 0.0);
     glm::vec3 colorGreen(0.0, 255.0, 0.0);
     
-    Sphere s1(glm::vec3(0.0, 1.0, -2.0), 2, colorRed);
-    Sphere s2(glm::vec3(0.0, 0.0, -10.0), 10.5, colorGreen);
+    Sphere s1(glm::vec3(1.0, 1.0, -5.0), 1, colorRed);
+    Sphere s2(glm::vec3(-1.0, 0.0, -8.0), 1.5, colorGreen);
+    
+    Plane p1(glm::vec3(0.0, 0.0, -1.0), glm::vec3(20.0, 20.0, 20.0), glm::vec3(0.0, 0.0, -10));
+    Plane p2(glm::vec3(0.0, -1.0, 0.0), glm::vec3(50.0, 50.0, 50.0), glm::vec3(0.0, -5.0, 0.0));
+    Plane p3(glm::vec3(0.0, 1.0, 0.0), glm::vec3(100.0, 100.0, 100.0), glm::vec3(0.0, 5.0, 0.0));
+    Plane p4(glm::vec3(1.0, 0.0, 0.0), glm::vec3(150.0, 150.0, 150.0), glm::vec3(5.0, 0.0, 0.0));
+    Plane p5(glm::vec3(-1.0, 0.0, 0.0), glm::vec3(200.0, 200.0, 200.0), glm::vec3(-5.0, 0.0, 0.0));
     
     surfaces.push_back(&s1);
     surfaces.push_back(&s2);
+    surfaces.push_back(&p1);
+    surfaces.push_back(&p2);
+    surfaces.push_back(&p3);
+    surfaces.push_back(&p4);
+    surfaces.push_back(&p5);
     
     // ----------------------------------------------
     // Loop through every pixel and cast ray into scene
