@@ -4,6 +4,7 @@
 //
 
 #include "Ray.hpp"
+
 #define INF 9999
 
 Ray::Ray(Scene *s) {
@@ -11,8 +12,6 @@ Ray::Ray(Scene *s) {
 }
 
 glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounces) {
-	glm::vec3 c(0.0, 0.0, 255.0);
-
 	// Compare ray with every object in scene
 	// Find the smallest distance to an object
 	float t0, t1, tNear = INF;
@@ -27,20 +26,23 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
 		}
 	}
     
+    // We have found an object
     if (s != nullptr) {
+        // p is the point of intersection
+        // pDir is a normalized vector from p towards light source
+        glm::vec3 p = rayOrig + rayDir * tNear;
+        glm::vec3 pDir = scene->lightPos1 - p;
+        float dist = glm::length(pDir);
+        pDir = glm::normalize(pDir);
+        
+        // Look through all objects, if we find an object closer than the light source, shaded = true;
+        for (auto &o : *scene->objects)
+            if (o->intersects(p, pDir, t0, t1))
+                if (t0 < dist) return glm::vec3(0.0, 0.0, 0.0);
+        
+        // Not shaded => return object's color
         return s->color;
     }
     
-//	glm::vec3 intersectPos = rayOrig + nearestIntersection*rayDir;
-	// If we found an intersection, cast shadow ray
-	// Compare shadow ray with every object
-	//Ray ray(&scene);
-	//rayDir = scene->lightPos1 - intersectPos;
-	//glm::vec3 color = ray.trace(intersectPos, rayDir, 0.0, 0);
-
-	// If point isn't in shadow, update with object's color and light's brightness
-
-
-
-	return c;
+	return glm::vec3(0.0, 0.0, 0.0);
 }
