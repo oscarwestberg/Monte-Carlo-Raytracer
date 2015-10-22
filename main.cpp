@@ -61,10 +61,17 @@ int main() {
             glm::vec3 rayDir = glm::vec3(pixelX, pixelY, scene.cameraDir.z) - rayOrig;
             rayDir = glm::normalize(rayDir);
             
-            // This step can be done many times
-            // Shoot ray into scene
-            Ray ray(&scene);
-            glm::vec3 color = ray.trace(rayOrig, rayDir, 0.0, 0);
+            // Amount of rays to send into the scene per pixel
+            int nRays = 10;
+            glm::vec3 color(0.0,0.0,0.0);
+            
+            // Shoot rays into scene
+            for (int i = 0; i < nRays; i++) {
+                Ray ray(&scene);
+                color += ray.trace(rayOrig, rayDir, 0.0, 0);
+            }
+            
+            color /= nRays;
             radianceArray.push_back(color);
         }
     }

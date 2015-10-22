@@ -18,6 +18,3 @@ For the course TNCG15 at Linköping University. A Monte-Carlo raytracer that mod
 * http://www.scratchapixel.com/index.php  
 
 # Todo
-* Trace ray (Ray.trace())  
-* Calculate intersection (Surface.intersects, implementation in subclasses)  
-* Define other kinds of surfaces (Walls)  
