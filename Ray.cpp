@@ -41,7 +41,14 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
         if (s->isLight())
             return s->color;
         
+        // p is the point of intersection
+        // pDir is a normalized vector from p towards light source
         glm::vec3 color(0.0, 0.0, 0.0);
+        glm::vec3 p = rayOrig + rayDir * tNear;
+        glm::vec3 pDir = scene->lightPos1 - p;
+        
+        float dist = glm::length(pDir);
+        pDir = glm::normalize(pDir);
         
         // If the object is reflective or refractive, calculate new ray(s)
         if (s->isReflective() || s->isRefractive()) {
@@ -55,6 +62,14 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
          
             // Calculate reflective ray for both refracive and reflective materials
             // Trace reflective ray
+            
+            // r is the reflected direction
+            glm::vec3 r = rayDir - 2 * glm::dot(rayDir, s->getNormal(p)) * s->getNormal(p);
+            
+            Ray ray(scene);
+            color += ray.trace(p, r, depth, bounces);
+            
+//            color = s->color;
         }
         
         // Material is diffuse, do Monte Carlo stuff
@@ -65,18 +80,15 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
             color = s->color;
         }
         
-        // p is the point of intersection
-        // pDir is a normalized vector from p towards light source
-        glm::vec3 p = rayOrig + rayDir * tNear;
-        glm::vec3 pDir = scene->lightPos1 - p;
-        float dist = glm::length(pDir);
-        pDir = glm::normalize(pDir);
+        
         
         // Shoot shadow ray(s) to random position on light (not random not though)
         // Does not account for any sphere that is a light at the moment
         for (auto &o : *scene->objects)
             if (o->intersects(p, pDir, t0, t1))
                 if (t0 < dist && !o->isLight()) return glm::vec3(0.0, 0.0, 0.0);
+        
+        // Given all previous parameters evaluate the local shading model and return color
         
         return color;
     }

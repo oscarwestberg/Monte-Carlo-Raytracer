@@ -33,8 +33,8 @@ int main() {
     Sphere s1(glm::vec3(1.0, 1.0, -5.0), 1, colorRed);
     Sphere s2(glm::vec3(-1.0, 0.0, -8.0), 1.5, colorGreen);
 	Sphere l1(scene.lightPos1, 0.2, colorWhite);
-//    s1.setReflective();
-//    s2.setRefractive();
+    s1.setReflective();
+    s2.setRefractive();
     l1.setLight();
     
     Plane p1(glm::vec3(0.0, 0.0, -1.0), glm::vec3(20.0, 20.0, 20.0), glm::vec3(0.0, 0.0, -10));

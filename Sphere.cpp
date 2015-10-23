@@ -27,3 +27,7 @@ bool Sphere::intersects(glm::vec3 rayOrig, glm::vec3 rayDir, float &t0, float &t
 
 	return true;
 }
+
+glm::vec3 Sphere::getNormal(glm::vec3 pos) {
+    return glm::normalize(pos - center);
+};

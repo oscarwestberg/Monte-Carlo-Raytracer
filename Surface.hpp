@@ -21,7 +21,10 @@ private:
     bool refractive = false;
 public:
     glm::vec3 color;
-    virtual bool intersects(glm::vec3 rayOrig, glm::vec3 rayDir, float &t0, float &t1) { return false; }
+    
+    // Pure virtual methods
+    virtual bool intersects(glm::vec3 rayOrig, glm::vec3 rayDir, float &t0, float &t1) = 0;
+    virtual glm::vec3 getNormal(glm::vec3 pos) = 0;
     
     void setLight() { light = true; };
     void setRefractive() { refractive = true; };
