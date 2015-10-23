@@ -17,6 +17,7 @@ class Sphere : public Surface
 private:
     glm::vec3 center;
     float radius;
+	
     
 public:
     Sphere(glm::vec3 ce, float r, glm::vec3 co);

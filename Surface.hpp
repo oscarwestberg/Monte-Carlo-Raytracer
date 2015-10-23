@@ -19,7 +19,10 @@ private:
     
 public:
     glm::vec3 color;
-    
+	bool isLight;
+	Surface() { 
+		isLight = false; 
+	}
     virtual bool intersects(glm::vec3 rayOrig, glm::vec3 rayDir, float &t0, float &t1) { return false; }
 };
 
