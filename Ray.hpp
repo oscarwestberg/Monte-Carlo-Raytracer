@@ -18,6 +18,7 @@ private:
     
 public:
     Ray(Scene *s);
+	glm::vec3 findRandomDirection(glm::vec3 rayOrig, float radius);
     glm::vec3 trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounces);
 };
 

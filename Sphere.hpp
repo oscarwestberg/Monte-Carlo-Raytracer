@@ -15,14 +15,15 @@
 class Sphere : public Surface
 {
 private:
-    glm::vec3 center;
-    float radius;
-	
-    
+	glm::vec3 center;
+	float radius;
+
+
 public:
-    Sphere(glm::vec3 ce, float r, glm::vec3 co);
+	Sphere(glm::vec3 ce, float r, glm::vec3 co);
 	bool intersects(glm::vec3 rayOrig, glm::vec3 rayDir, float &t0, float &t1);
-    glm::vec3 getNormal(glm::vec3 pos);
-};
+	glm::vec3 getNormal(glm::vec3 pos);
+	float getRadius();
+	};
 
 #endif /* Sphere_hpp */
