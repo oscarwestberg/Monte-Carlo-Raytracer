@@ -32,8 +32,10 @@ int main() {
     
     Sphere s1(glm::vec3(1.0, 1.0, -5.0), 1, colorRed);
     Sphere s2(glm::vec3(-1.0, 0.0, -8.0), 1.5, colorGreen);
-	Sphere l1(glm::vec3(0.0, 4.0, -5.0), 1, colorWhite);
-	l1.isLight = true;
+	Sphere l1(scene.lightPos1, 0.2, colorWhite);
+//    s1.setReflective();
+//    s2.setRefractive();
+    l1.setLight();
     
     Plane p1(glm::vec3(0.0, 0.0, -1.0), glm::vec3(20.0, 20.0, 20.0), glm::vec3(0.0, 0.0, -10));
     Plane p2(glm::vec3(0.0, -1.0, 0.0), glm::vec3(50.0, 50.0, 50.0), glm::vec3(0.0, -5.0, 0.0));
@@ -66,16 +68,18 @@ int main() {
             rayDir = glm::normalize(rayDir);
             
             // Amount of rays to send into the scene per pixel
-            int nRays = 10;
+            // This is used for Monte Carlo sampling
+            // Only one ray at the moment
+            int samples = 1;
             glm::vec3 color(0.0,0.0,0.0);
             
             // Shoot rays into scene
-            for (int i = 0; i < nRays; i++) {
+            for (int i = 0; i < samples; i++) {
                 Ray ray(&scene);
                 color += ray.trace(rayOrig, rayDir, 0.0, 0);
             }
             
-            color /= nRays;
+            color /= samples;
             radianceArray.push_back(color);
         }
     }
