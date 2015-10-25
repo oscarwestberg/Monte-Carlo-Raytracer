@@ -11,10 +11,6 @@ Ray::Ray(Scene *s) {
     scene = s;
 }
 
-glm::vec3 refract(const glm::vec3 I, const glm::vec3 N, const float n) {
-    return I;
-}
-
 glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounces) {
     
     // Ray termination
@@ -23,8 +19,10 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
     }
     
     
+    // ----------------------------------------------
 	// Compare ray with every object in scene
 	// Find the smallest distance to an object
+    // ----------------------------------------------
 	float t0, t1, tNear = INF;
     Surface *s = nullptr; // Pointer to closest object
     
@@ -37,7 +35,9 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
 		}
 	}
     
+    // ----------------------------------------------
     // We have found an object
+    // ----------------------------------------------
     if (s != nullptr) {
         
         // If the closes object is a light, return light color
@@ -60,16 +60,24 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
         bounces++;
         depth += dist;
         
+        // ----------------------------------------------
         // If the object is reflective or refractive, calculate new ray(s)
+        // ----------------------------------------------
         if (s->isReflective() || s->isRefractive()) {
             
             // If the object is refractive, create refractive ray
+            // Not implemented yet
             if (s->isRefractive()) {
-                // First check if the current point is inside the object
-         
+                
                 // Calculate new refractive ray
-                // Trace ray
-                glm::vec3 t = refract(rayDir, normal, 1.2);
+                // Need to do a flip if we are inside the object
+                glm::vec3 n = normal;
+                const float index = 1/1.5;
+//                Sphere *temp = static_cast <Sphere*>(s);
+//                if (glm::length(temp->getCenter() - p) < temp->getRadius()) n = -n;
+                
+                glm::vec3 t = glm::normalize(glm::refract(rayDir, n, index));
+                
                 Ray ray(scene);
                 color += ray.trace(p, t, depth, bounces);
             }
@@ -79,12 +87,13 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
             Ray ray(scene);
             color += ray.trace(p, r, depth, bounces);
         }
-        
+        // ----------------------------------------------
         // Material is diffuse, do Monte Carlo stuff
+        // ----------------------------------------------
         else {
             // russian roulette
             // random new ray over hemisphere of normal
-            Ray ray(scene);
+            //Ray ray(scene);
             //color += ray.trace(p, normal, depth, bounces);
             
             // Material is diffuse - lambertian reflectance
@@ -93,6 +102,9 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
             localColor = s->color * lambert;
         }
         
+        // ----------------------------------------------
+        // Calculate shadow rays
+        // ----------------------------------------------
         bool shaded = false;
         
         // Shoot shadow ray(s) to random position on light (not random not though)
@@ -101,8 +113,11 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
             if (o->intersects(p, pDir, t0, t1))
                 if (t0 < dist && !o->isLight()) shaded = true;
         
+        // ----------------------------------------------
         // Given all previous parameters evaluate the local shading model and return color
+        // ----------------------------------------------
         if (!shaded) color += localColor;
+        else color += localColor * (float)0.5;
         
         return color / (float)bounces;
     }
