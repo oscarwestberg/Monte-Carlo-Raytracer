@@ -91,15 +91,33 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
         // Material is diffuse, do Monte Carlo stuff
         // ----------------------------------------------
         else {
-            // russian roulette
-            // random new ray over hemisphere of normal
-            //Ray ray(scene);
-            //color += ray.trace(p, normal, depth, bounces);
+            // Russian roulette
+            float r1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+            float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
             
-            // Material is diffuse - lambertian reflectance
-            // We only have one light source
-            float lambert = glm::dot(normal, pDir);
-            localColor = s->color * lambert;
+            // Ray is scattered
+            if (r1 > 0.6) {
+                // New random direction over hemisphere
+                glm::vec3 newDir(std::cos(M_PI * r1 / 60.0) * sqrt(1 - r2), sin(M_PI * r1 / 60.0) * sqrt(1 - r2), sqrt(r2));
+                
+                // Create a new coordinate system to transform the newDir to the normal
+                glm::vec3 c1 = glm::cross(normal, glm::vec3(0.0, 0.0, 1.0));
+                glm::vec3 c2 = glm::cross(normal, glm::vec3(0.0, 1.0, 0.0));
+                glm::vec3 tangent = glm::length(c1) > glm::length(c2) ? c1 : c2;
+                glm::vec3 bitangent = glm::cross(normal, tangent);
+                glm::mat3 system(tangent, normal, bitangent);
+                
+                newDir = system * newDir;
+                newDir = glm::normalize(newDir);
+                
+                Ray ray(scene);
+                color += ray.trace(p, glm::normalize(normal + newDir), 0, 0);
+            }
+            // Ray is absorbed
+            else {
+                float lambert = glm::dot(normal, pDir);
+                localColor += lambert * s->color;
+            }
         }
         
         // ----------------------------------------------
@@ -117,7 +135,7 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
         // Given all previous parameters evaluate the local shading model and return color
         // ----------------------------------------------
         if (!shaded) color += localColor;
-        else color += localColor * (float)0.5;
+        else color += localColor * (float)0.3;
         
         return color / (float)bounces;
     }

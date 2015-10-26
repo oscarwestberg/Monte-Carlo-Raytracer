@@ -11,7 +11,7 @@ Scene::Scene(std::vector<Surface*>* o) {
     objects = o;
     
     maxBounces = 5;
-    maxDepth = 200.0;
+    maxDepth = 9999.0;
     fov = 90 * M_PI / 180.0; // angle to radians
     
     cameraPos = glm::vec3(0.0, 0.0, 0.0);
