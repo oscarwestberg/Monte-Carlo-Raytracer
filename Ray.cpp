@@ -96,22 +96,22 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
             float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
             
             // Ray is scattered
-            if (r1 > 0.6) {
+            if (r1 > 0.8) {
+                float inclination = (M_PI * 2 * r1);
+                float azimuth = (acos(sqrt(r2)));
+                glm::vec3 tangent = glm::normalize(glm::cross(normal, normal + glm::vec3(1.0)));
+                
                 // New random direction over hemisphere
-                glm::vec3 newDir(std::cos(M_PI * r1 / 60.0) * sqrt(1 - r2), sin(M_PI * r1 / 60.0) * sqrt(1 - r2), sqrt(r2));
+                glm::vec3 newDir = normal;
+                if (normal.y > 0) tangent.z = std::abs(tangent.z);
                 
-                // Create a new coordinate system to transform the newDir to the normal
-                glm::vec3 c1 = glm::cross(normal, glm::vec3(0.0, 0.0, 1.0));
-                glm::vec3 c2 = glm::cross(normal, glm::vec3(0.0, 1.0, 0.0));
-                glm::vec3 tangent = glm::length(c1) > glm::length(c2) ? c1 : c2;
-                glm::vec3 bitangent = glm::cross(normal, tangent);
-                glm::mat3 system(tangent, normal, bitangent);
+                // Rotate direction around itself and its tangent
+                newDir = glm::rotate(newDir, inclination, tangent);
+                newDir = glm::rotate(newDir, azimuth, normal);
                 
-                newDir = system * newDir;
-                newDir = glm::normalize(newDir);
-                
+                // Add BRDF & divide by pdf
                 Ray ray(scene);
-                color += ray.trace(p, glm::normalize(normal + newDir), 0, 0);
+                color += ray.trace(p, newDir, 0, 0);
             }
             // Ray is absorbed
             else {

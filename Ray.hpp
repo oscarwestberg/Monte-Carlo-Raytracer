@@ -11,6 +11,7 @@
 #include "Surface.hpp"
 #include "Sphere.hpp"
 #include "Scene.hpp"
+#include "glm/ext.hpp"
 
 class Ray
 {
