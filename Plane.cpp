@@ -17,9 +17,10 @@ Plane::Plane(glm::vec3 n, glm::vec3 c, glm::vec3 p) {
 // If dot((p - point), normal) = 0 then the vector (p - point) is on the surface and thus,
 // there exists a t that produces the point p so we solve t.
 bool Plane::intersects(glm::vec3 rayOrig, glm::vec3 rayDir, float &t0, float &t1) {
+    glm::vec3 n = -normal;
     
-    if (glm::dot(rayDir, normal) >= 0.0001) {
-        t0 = glm::dot((point - rayOrig), normal) / glm::dot(rayDir, normal);
+    if (glm::dot(rayDir, n) >= 0.0001) {
+        t0 = glm::dot((point - rayOrig), n) / glm::dot(rayDir, n);
         return (t0 >= 0.0);
     }
     

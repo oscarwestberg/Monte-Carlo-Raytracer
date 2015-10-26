@@ -22,8 +22,9 @@ private:
 public:
 	Sphere(glm::vec3 ce, float r, glm::vec3 co);
 	bool intersects(glm::vec3 rayOrig, glm::vec3 rayDir, float &t0, float &t1);
-	glm::vec3 getNormal(glm::vec3 pos);
+    glm::vec3 getNormal(glm::vec3 pos);
+    glm::vec3 getCenter() { return center; };
 	float getRadius();
-	};
+};
 
 #endif /* Sphere_hpp */

@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <vector>
 #include "Surface.hpp"
+#include "Sphere.hpp"
 #include "Scene.hpp"
 
 class Ray

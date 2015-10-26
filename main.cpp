@@ -28,7 +28,9 @@ int main() {
     // ----------------------------------------------
     glm::vec3 colorRed(255.0, 0.0, 0.0);
     glm::vec3 colorGreen(0.0, 255.0, 0.0);
-	glm::vec3 colorWhite(255.0, 255.0, 255.0);
+    glm::vec3 colorBlue(0.0, 0.0, 255.0);
+    glm::vec3 colorGray(100.0);
+	glm::vec3 colorWhite(255.0);
     
     Sphere s1(glm::vec3(1.0, 1.0, -5.0), 1, colorRed);
     Sphere s2(glm::vec3(-1.0, 0.0, -8.0), 1.5, colorGreen);
@@ -37,11 +39,11 @@ int main() {
     s2.setRefractive();
     l1.setLight();
     
-    Plane p1(glm::vec3(0.0, 0.0, -1.0), glm::vec3(20.0, 20.0, 20.0), glm::vec3(0.0, 0.0, -10));
-    Plane p2(glm::vec3(0.0, -1.0, 0.0), glm::vec3(50.0, 50.0, 50.0), glm::vec3(0.0, -5.0, 0.0));
-    Plane p3(glm::vec3(0.0, 1.0, 0.0), glm::vec3(100.0, 100.0, 100.0), glm::vec3(0.0, 5.0, 0.0));
-    Plane p4(glm::vec3(1.0, 0.0, 0.0), glm::vec3(150.0, 150.0, 150.0), glm::vec3(5.0, 0.0, 0.0));
-    Plane p5(glm::vec3(-1.0, 0.0, 0.0), glm::vec3(200.0, 200.0, 200.0), glm::vec3(-5.0, 0.0, 0.0));
+    Plane p1(glm::vec3(0.0, 0.0, 1.0), colorGray, glm::vec3(0.0, 0.0, -10)); // Front
+    Plane p2(glm::vec3(0.0, 1.0, 0.0), colorGray, glm::vec3(0.0, -5.0, 0.0)); // Bottom
+    Plane p3(glm::vec3(0.0, -1.0, 0.0), colorGray, glm::vec3(0.0, 5.0, 0.0)); // Top
+    Plane p4(glm::vec3(-1.0, 0.0, 0.0), colorGreen, glm::vec3(5.0, 0.0, 0.0)); // Right
+    Plane p5(glm::vec3(1.0, 0.0, 0.0), colorRed, glm::vec3(-5.0, 0.0, 0.0)); // Left
     
 	surfaces.push_back(&l1);
     surfaces.push_back(&s1);
