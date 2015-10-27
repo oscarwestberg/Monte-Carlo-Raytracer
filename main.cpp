@@ -9,7 +9,6 @@
 
 #include <iostream>
 #include <math.h>
-#include <ctime>
 #include <glm/glm.hpp>
 #include "Sphere.hpp"
 #include "Plane.hpp"
@@ -17,16 +16,12 @@
 #include "Scene.hpp"
 
 
-const int screenWidth = 800, screenHeight = 600;
+const int screenWidth = 500, screenHeight = 350;
 
 int main() {
     std::vector<glm::vec3> radianceArray;
     std::vector<Surface*> surfaces;
     Scene scene(&surfaces);
-    
-    // Timer
-    std::clock_t start = std::clock();;
-    double duration;
     
     // ----------------------------------------------
     // Create the scene
@@ -41,7 +36,9 @@ int main() {
     Sphere s2(glm::vec3(-1.0, 0.0, -8.0), 1.5, colorGreen);
 	Sphere l1(scene.lightPos1, 0.2, colorWhite);
     s1.setReflective();
+	s1.setTransparent();
     s2.setRefractive();
+	s2.setTransparent();
     l1.setLight();
     
     Plane p1(glm::vec3(0.0, 0.0, 1.0), colorGray, glm::vec3(0.0, 0.0, -10)); // Front
@@ -77,7 +74,7 @@ int main() {
             // Amount of rays to send into the scene per pixel
             // This is used for Monte Carlo sampling
             // Only one ray at the moment
-            int samples = 10;
+            int samples = 5;
             glm::vec3 color(0.0,0.0,0.0);
             
             // Shoot rays into scene
@@ -102,8 +99,6 @@ int main() {
     
     std::cout << "Created file\n";
     
-    duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-    std::cout << "With total time: " << duration << "\n";
     
     return 0;
 }

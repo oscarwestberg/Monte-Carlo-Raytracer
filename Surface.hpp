@@ -19,6 +19,7 @@ private:
     bool light = false;
     bool reflective = false;
     bool refractive = false;
+	bool transparent = false;
 public:
     glm::vec3 color;
     
@@ -29,10 +30,12 @@ public:
     void setLight() { light = true; };
     void setRefractive() { refractive = true; };
     void setReflective() { reflective = true; };
-    
+	void setTransparent() { transparent = true; };
+
     bool isLight() { return light; }
     bool isRefractive() { return refractive; }
     bool isReflective() { return reflective; }
+	bool isTransparent() { return transparent; }
 };
 
 #endif /* Surface_hpp */

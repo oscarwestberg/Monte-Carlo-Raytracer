@@ -6,6 +6,7 @@
 #include "Ray.hpp"
 
 #define INF 9999
+#define M_PI 3.14159265358979323846
 
 Ray::Ray(Scene *s) {
     scene = s;
@@ -70,17 +71,25 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
             if (s->isRefractive()) {
                 
                 // Calculate new refractive ray
-                // Need to do a flip if we are inside the object
+				glm::vec3 l = p - scene->lightPos1;
                 glm::vec3 n = normal;
                 const float index = 1/1.5;
-//                Sphere *temp = static_cast <Sphere*>(s);
-//                if (glm::length(temp->getCenter() - p) < temp->getRadius()) n = -n;
-                
-                glm::vec3 t = glm::normalize(glm::refract(rayDir, n, index));
-                
+				float c = glm::dot(-normal, glm::normalize(l));
+				glm::vec3 refractDir = index*normalize(l) + (float)(index*c - sqrt(1.0f - index*index*(1.0f - c*c)))*normal;
+				//Need to do a flip if we are inside the object  
+				//Sphere *temp = static_cast <Sphere*>(s);
+				//if (glm::length(temp->getCenter() - p) < temp->getRadius()) n = -n; 
+                //glm::vec3 t = glm::normalize(glm::refract(rayDir, n, index));
+				glm::vec3 pToCenter = scene->lightPos1 - p;
+				2.0f * glm::dot(pToCenter, refractDir);
+
+
+
                 Ray ray(scene);
-                color += ray.trace(p, t, depth, bounces);
+                color += ray.trace(p, refractDir, depth, bounces);
             }
+
+
          
             // Calculate reflective ray for both refracive and reflective materials
             // Trace reflective ray
