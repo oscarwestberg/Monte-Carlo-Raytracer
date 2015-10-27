@@ -16,7 +16,7 @@
 #include "Scene.hpp"
 
 
-const int screenWidth = 500, screenHeight = 350;
+const int screenWidth = 800, screenHeight = 600;
 
 int main() {
     std::vector<glm::vec3> radianceArray;
@@ -74,7 +74,7 @@ int main() {
             // Amount of rays to send into the scene per pixel
             // This is used for Monte Carlo sampling
             // Only one ray at the moment
-            int samples = 5;
+            int samples = 3;
             glm::vec3 color(0.0,0.0,0.0);
             
             // Shoot rays into scene

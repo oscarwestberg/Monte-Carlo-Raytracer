@@ -4,6 +4,7 @@
 //
 
 #include "Ray.hpp"
+#include "Sphere.hpp"
 
 #define INF 9999
 #define M_PI 3.14159265358979323846
@@ -80,21 +81,29 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
 				//Sphere *temp = static_cast <Sphere*>(s);
 				//if (glm::length(temp->getCenter() - p) < temp->getRadius()) n = -n; 
                 //glm::vec3 t = glm::normalize(glm::refract(rayDir, n, index));
-				glm::vec3 pToCenter = scene->lightPos1 - p;
-				2.0f * glm::dot(pToCenter, refractDir);
+				Sphere * sphereHit = static_cast <Sphere*>(s);
+				glm::vec3 sphereCenter = sphereHit->getCenter();
+				//create vector to center
+				glm::vec3 pToCenter = sphereCenter - p;
+				//get distance to exit by using the projection formula
+				glm::vec3 exitPoint = p + (2.0f * glm::dot(pToCenter, refractDir))*refractDir;
 
-
+				//get the new direction in the same way as before
+				l = exitPoint - scene->lightPos1;
+				glm::vec3 outNormal = s->getNormal(exitPoint);
+				c = glm::dot(-outNormal, glm::normalize(l));
+				refractDir = index*normalize(l) + (float)(index*c - sqrt(1.0f - index*index*(1.0f - c*c)))*outNormal;
 
                 Ray ray(scene);
-                color += ray.trace(p, refractDir, depth, bounces);
+                color += ray.trace(exitPoint, refractDir, depth, bounces);
             }
 
 
          
             // Calculate reflective ray for both refracive and reflective materials
             // Trace reflective ray
-            Ray ray(scene);
-            color += ray.trace(p, r, depth, bounces);
+            //Ray ray(scene);
+            //color += ray.trace(p, r, depth, bounces);
         }
         // ----------------------------------------------
         // Material is diffuse, do Monte Carlo stuff
