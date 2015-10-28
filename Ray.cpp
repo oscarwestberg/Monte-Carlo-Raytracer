@@ -8,6 +8,9 @@
 
 #define INF 9999
 #define M_PI 3.14159265358979323846
+#include <iostream>
+using namespace std;
+
 
 Ray::Ray(Scene *s) {
     scene = s;
@@ -66,44 +69,59 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
         // If the object is reflective or refractive, calculate new ray(s)
         // ----------------------------------------------
         if (s->isReflective() || s->isRefractive()) {
-            
-            // If the object is refractive, create refractive ray
-            // Not implemented yet
-            if (s->isRefractive()) {
-                
-                // Calculate new refractive ray
-				glm::vec3 l = p - scene->lightPos1;
-                glm::vec3 n = normal;
-                const float index = 1/1.5;
-				float c = glm::dot(-normal, glm::normalize(l));
-				glm::vec3 refractDir = index*normalize(l) + (float)(index*c - sqrt(1.0f - index*index*(1.0f - c*c)))*normal;
-				//Need to do a flip if we are inside the object  
-				//Sphere *temp = static_cast <Sphere*>(s);
-				//if (glm::length(temp->getCenter() - p) < temp->getRadius()) n = -n; 
-                //glm::vec3 t = glm::normalize(glm::refract(rayDir, n, index));
-				Sphere * sphereHit = static_cast <Sphere*>(s);
-				glm::vec3 sphereCenter = sphereHit->getCenter();
-				//create vector to center
-				glm::vec3 pToCenter = sphereCenter - p;
-				//get distance to exit by using the projection formula
-				glm::vec3 exitPoint = p + (2.0f * glm::dot(pToCenter, refractDir))*refractDir;
+                       
+            // Calculate new refractive ray
+			glm::vec3 incident = rayDir;
+			float n1 = 1.0f;
+			float n2 = 1.4f;
+			glm::vec3 n = s->getNormal(p);
+            float index = n1/n2;
+			float cos1 = glm::dot(incident, -n);
+			float cos2 = sqrt(1.0f - index*index *(1.0f - cos1*cos1));
+			float sinT2 = index*index * (1.0f - cos1*cos1);
+			//cout << sinT2 << endl;
+			glm::vec3 refractDir = index*incident + (float)(index*cos1 - cos2)*n;
+				
+			Sphere * sphereHit = static_cast <Sphere*>(s);
+			glm::vec3 sphereCenter = sphereHit->getCenter();
+			//create vector to center
+			glm::vec3 pToCenter = sphereCenter - p;
+			//get distance to exit by using the projection formula
+			glm::vec3 exitPoint = p + (2.0f * glm::dot(pToCenter, refractDir))*refractDir;
 
-				//get the new direction in the same way as before
-				l = exitPoint - scene->lightPos1;
-				glm::vec3 outNormal = s->getNormal(exitPoint);
-				c = glm::dot(-outNormal, glm::normalize(l));
-				refractDir = index*normalize(l) + (float)(index*c - sqrt(1.0f - index*index*(1.0f - c*c)))*outNormal;
+			//get the new direction in the same way as before
+			incident = refractDir;
+			n = - s->getNormal(exitPoint);
+			index = n2 / n1;
+			cos1 = glm::dot(incident, -n);
+			cos2 = sqrt(1.0f - index*index *(1.0f - cos1*cos1));
+			refractDir = index*incident + (float)(index*cos1 - cos2)*n;
 
-                Ray ray(scene);
-                color += ray.trace(exitPoint, refractDir, depth, bounces);
-            }
+			
+			float R;
+			
+			if (s->isReflective() || sinT2 > 1.0f) {
+				R = 1.0f;
+				
+				
+			}
+			else {
+				float r0 = pow((n1 - n2) / (n1 + n2), 2);
+				R = r0 + (1.0f - r0)*(pow((1.0f - cos1), 5));
+			}
 
+			float r01 = (float)rand() / RAND_MAX;
 
-         
-            // Calculate reflective ray for both refracive and reflective materials
-            // Trace reflective ray
-            //Ray ray(scene);
-            //color += ray.trace(p, r, depth, bounces);
+			Ray ray(scene);
+			if (r01 < R) {
+				//reflection
+				color += ray.trace(p, r, depth, bounces);
+				//cout << ("Hej");
+			}
+			else {
+				//refraction
+				color += ray.trace(exitPoint, refractDir, depth, bounces);
+			}
         }
         // ----------------------------------------------
         // Material is diffuse, do Monte Carlo stuff
