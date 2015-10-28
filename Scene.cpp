@@ -7,8 +7,9 @@
 
 #define M_PI 3.14159265358979323846
 
-Scene::Scene(std::vector<Surface*>* o) {
+Scene::Scene(std::vector<Surface*>* o, std::vector<Sphere*>* l) {
     objects = o;
+    lights = l;
     
     maxBounces = 6;
     maxDepth = 9999.0;

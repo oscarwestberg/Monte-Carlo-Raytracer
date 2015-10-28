@@ -22,7 +22,8 @@ const int screenWidth = 800, screenHeight = 600;
 int main() {
     std::vector<glm::vec3> radianceArray;
     std::vector<Surface*> surfaces;
-    Scene scene(&surfaces);
+    std::vector<Sphere*> lights;
+    Scene scene(&surfaces, &lights);
     
     // Timer
     std::clock_t start = std::clock();;
@@ -39,12 +40,16 @@ int main() {
     glm::vec3 colorNone(0.0);
     
     Sphere s1(glm::vec3(-1.0, -4.0, -6.0), 1.0, colorNone);
-    Sphere s2(glm::vec3(2.0, -2.0, -7.0), 3.0, colorGray);
+    Sphere s2(glm::vec3(2.0, -3.0, -8.0), 2.0, colorGray);
     Sphere s3(glm::vec3(-2.0, -3.0, -8.0), 2.0, colorGray);
-    Sphere l1(glm::vec3(0.0, 4.5, -5.0), 0.2, colorWhite);
+    
+    Sphere l1(glm::vec3(2.0, 4.5, -5.0), 0.2, colorWhite);
+    Sphere l2(glm::vec3(-2.0, 4.5, -5.0), 0.2, colorWhite);
+    
     s1.setRefractive();
     s2.setOren();
     l1.setLight();
+    l2.setLight();
     
     Plane p1(glm::vec3(0.0, 0.0, 1.0), colorWhite, glm::vec3(0.0, 0.0, -10)); // Front
     Plane p2(glm::vec3(0.0, 1.0, 0.0), colorWhite, glm::vec3(0.0, -5.0, 0.0)); // Bottom
@@ -53,6 +58,7 @@ int main() {
     Plane p5(glm::vec3(1.0, 0.0, 0.0), colorRed, glm::vec3(-5.0, 0.0, 0.0)); // Left
     
 	surfaces.push_back(&l1);
+    surfaces.push_back(&l2);
     surfaces.push_back(&s1);
     surfaces.push_back(&s2);
     surfaces.push_back(&s3);
@@ -61,6 +67,9 @@ int main() {
     surfaces.push_back(&p3);
     surfaces.push_back(&p4);
     surfaces.push_back(&p5);
+    
+    lights.push_back(&l1);
+    lights.push_back(&l2);
     
     // ----------------------------------------------
     // Loop through every pixel and cast ray into scene

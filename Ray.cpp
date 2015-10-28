@@ -13,7 +13,7 @@ Ray::Ray(Scene *s) {
 
 float OrenNayarBRDF(glm::vec3 lightDir, glm::vec3 eyeDir, glm::vec3 normal) {
     
-    float roughness = 2.0;
+    float roughness = 1.0;
     roughness *= roughness;
     
     float NdotL = glm::dot(normal, lightDir);
@@ -43,7 +43,6 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
     // ----------------------------------------------
 	float t0, t1, tNear = INF;
     Surface *s = nullptr; // Pointer to closest object
-    Sphere *l = dynamic_cast<Sphere*>(scene->objects->front()); // Pointer to light
     
 	for (auto &o : *scene->objects) {
 		if (o->intersects(rayOrig, rayDir, t0, t1)) {
@@ -64,17 +63,12 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
             return s->color;
     
         // p is the point of intersection
-        // pDir is a normalized vector from p towards light source
         glm::vec3 directIllumination (0.0);
         glm::vec3 indirectIllumination (0.0);
         
         glm::vec3 p = rayOrig + rayDir * tNear;
-        glm::vec3 pDir = l->getCenter() - p; // Vector towards light
         glm::vec3 normal = s->getNormal(p);
         glm::vec3 r = rayDir - 2 * glm::dot(rayDir, normal) * normal; // reflected direction
-        
-        float dist = glm::length(pDir);
-        pDir = glm::normalize(pDir);
         
         // ----------------------------------------------
         // Indirect illumination
@@ -109,7 +103,7 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
             // Russian roulette
             float r1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
             float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-            float absorption = 0.3;
+            float absorption = 0.5;
             
             // Ray is scattered
             if (static_cast <float> (rand()) / static_cast <float> (RAND_MAX) > absorption) {
@@ -130,7 +124,7 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
                 // pdf  - over hemisphere
                 // cos  - relationship between normal and the direction reflected light will come from
                 // BRDF - Lambertian or Oren-Nayar
-                float pdf = 2.0f * M_PI;
+                float pdf = 1.0 / 2.0 * M_PI;
                 float cos = glm::dot(normal, newDir);
                 float BRDF = s->isOren() ? OrenNayarBRDF(newDir, glm::normalize(-scene->cameraDir), normal) : glm::dot(normal, newDir);
                 
@@ -145,27 +139,37 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
         // Direct illumination
         // Calculate shadow rays
         // ----------------------------------------------
-        bool shaded = false;
         
-        // Shoot shadow ray(s) to random position on light (not random now though)
-        for (auto &o : *scene->objects) {
-            if (o->intersects(p, pDir, t0, t1)) {
-                if (t0 < dist && !o->isLight()) shaded = true;
-            }
-        }
-        
-        if (!shaded) {
-            float lightIntensity = 0.8 * 1.0/255.0;
-            float BRDF = s->isOren() ? OrenNayarBRDF(pDir, glm::normalize(-scene->cameraDir), normal) : glm::dot(normal, pDir);
-            // TODO: N(light) must be calculated properly
-            float radianceTransfer = glm::dot(normal, pDir) * glm::dot(-pDir, -pDir);
-            // radianceTransfer = dot(N(object), shadowRay) * dot(N(light), -shadowRay)
-            float pdfk = 4.0 * M_PI * l->getRadius() * l->getRadius(); // pdf over sphere
-            float pdfyk = 1.0; // Chance to pick one of the light sources (only one at the moment)
+        int lights = 0;
+    
+        for (int i = 0; i < scene->lights->size(); i++) {
+            bool shaded = false;
+            Sphere *l = scene->lights->at(i); // Pointer to light
             
-            // Direct illumination = light * BRDF * radiance transfer / pdfk * pdfyk
-            directIllumination = l->color * lightIntensity * BRDF * radianceTransfer / (pdfk * pdfyk);
-            directIllumination *= s->color;
+            glm::vec3 pDir = l->getCenter() - p; // Vector towards light
+            float dist = glm::length(pDir);
+            pDir = glm::normalize(pDir);
+
+            // Shoot shadow ray(s) to random position on light (not random now though)
+            for (auto &o : *scene->objects) {
+                if (o->intersects(p, pDir, t0, t1)) {
+                    if (t0 < dist && !o->isLight()) shaded = true;
+                }
+            }
+            
+            if (!shaded) {
+                lights++;
+                float lightIntensity = 0.2 * 1.0/255.0;
+                float BRDF = s->isOren() ? OrenNayarBRDF(pDir, glm::normalize(-scene->cameraDir), normal) : glm::dot(normal, pDir);
+                // TODO: N(light) must be calculated properly
+                // radianceTransfer = dot(N(object), shadowRay) * dot(N(light), -shadowRay)
+                float radianceTransfer = glm::dot(normal, pDir) * glm::dot(-pDir, -pDir);
+                float pdfk = 4.0 * M_PI * l->getRadius() * l->getRadius(); // pdf over sphere
+                float pdfyk = 1.0; // Chance to pick one of the light sources (only one at the moment)
+                
+                // Direct illumination = light * BRDF * radiance transfer / pdfk * pdfyk
+                directIllumination += l->color * lightIntensity * BRDF * radianceTransfer / (pdfk * pdfyk) * s->color;
+            }
         }
         
         // ----------------------------------------------

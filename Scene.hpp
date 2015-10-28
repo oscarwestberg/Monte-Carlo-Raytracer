@@ -10,11 +10,13 @@
 #include <stdio.h>
 #include <vector>
 #include "Surface.hpp"
+#include "Sphere.hpp"
 
 class Scene
 {
 public:
     std::vector<Surface*>* objects;
+    std::vector<Sphere*>* lights;
     int maxBounces;
     float maxDepth;
     float fov;
@@ -23,7 +25,7 @@ public:
     glm::vec3 cameraDir;
     glm::vec3 cameraUp;
     
-    Scene(std::vector<Surface*>* o);
+    Scene(std::vector<Surface*>* o, std::vector<Sphere*>* l);
 };
 
 #endif /* Scene_hpp */

@@ -21,6 +21,6 @@ For the course TNCG15 at Linköping University. A Monte-Carlo raytracer that mod
 * Refractive rays for the transparent reflector   
 * Second light source  
 * Report  
-  
+
 * Several shadow rays  
 * Anti Aliasing  
