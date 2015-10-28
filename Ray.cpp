@@ -6,6 +6,8 @@
 #include "Ray.hpp"
 
 #define INF 9999
+#define M_PI 3.14159265358979323846
+
 
 Ray::Ray(Scene *s) {
     scene = s;
@@ -34,9 +36,27 @@ float OrenNayarBRDF(glm::vec3 lightDir, glm::vec3 eyeDir, glm::vec3 normal) {
     
     return  std::max(0.0f, NdotL) * (A + B * std::max(0.0f, gamma) * sin(alpha) * tan(beta));
 }
+    
+glm::vec3 findRandomDirection(glm::vec3 rayOrig, Sphere* light) {
+	glm::vec3 center = light->getCenter();
+	glm::vec3 sw = glm::normalize(center - rayOrig);
+	glm::vec3 su = glm::normalize(glm::cross((glm::abs(sw.x) > 0.1 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0)), sw));
+	glm::vec3 sv = glm::cross(sw, su);
+
+    float radius = light->getRadius();
+	float maxCosA = sqrt(1.0f - radius * radius / glm::dot(center - rayOrig, center - rayOrig));
+	float rand1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	float rand2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	float cosA = 1.0f - rand1 + rand1 * maxCosA;
+	float sinA = sqrt(1.0f - cosA * cosA);
+	float phi = 2 * M_PI * rand2;
+    
+	glm::vec3 randomDir = su * (float)(cos(phi) * sinA) + sv * (float)(sin(phi) * sinA) + sw * cosA;
+	return glm::normalize(randomDir);
+}
 
 glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounces) {
-    
+
     // ----------------------------------------------
 	// Compare ray with every object in scene
 	// Find the smallest distance to an object
@@ -52,7 +72,7 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
             }
 		}
 	}
-    
+
     // ----------------------------------------------
     // We have found an object
     // ----------------------------------------------
@@ -139,43 +159,46 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
         // Direct illumination
         // Calculate shadow rays
         // ----------------------------------------------
+        int shadowRays = 4;
         
-        int lights = 0;
-    
         for (int i = 0; i < scene->lights->size(); i++) {
-            bool shaded = false;
-            Sphere *l = scene->lights->at(i); // Pointer to light
+            Sphere *l = scene->lights->at(i); // Pointer to current light
+            glm::vec3 tempColor(0.0); // Total color per light
+            float unobstructedRays = 0.0;
             
-            glm::vec3 pDir = l->getCenter() - p; // Vector towards light
-            float dist = glm::length(pDir);
-            pDir = glm::normalize(pDir);
+            for (int j = 0; j < shadowRays; j++) {
+                bool shaded = false;
+                glm::vec3 pDir = findRandomDirection(p, l); // Vector towards light
+                float dist = glm::length(pDir);
+                pDir = glm::normalize(pDir);
 
-            // Shoot shadow ray(s) to random position on light (not random now though)
-            for (auto &o : *scene->objects) {
-                if (o->intersects(p, pDir, t0, t1)) {
-                    if (t0 < dist && !o->isLight()) shaded = true;
+                // Shoot shadow ray(s) to random position on light (not random now though)
+                for (auto &o : *scene->objects)
+                    if (o->intersects(p, pDir, t0, t1))
+                        if (t0 < dist && !o->isLight()) shaded = true;
+                
+                if (!shaded) {
+                    unobstructedRays++;
+                    float lightIntensity = 2.2 * 1.0/255.0;
+                    float BRDF = s->isOren() ? OrenNayarBRDF(pDir, glm::normalize(-scene->cameraDir), normal) : glm::dot(normal, pDir);
+                    // TODO: N(light) must be calculated properly
+                    // radianceTransfer = dot(N(object), shadowRay) * dot(N(light), -shadowRay)
+                    float radianceTransfer = glm::dot(normal, pDir) * glm::dot(-pDir, -pDir);
+                    float pdfk = 2.0 * M_PI * l->getRadius() * l->getRadius(); // pdf over sphere (lights are halved spheres)
+                    float pdfyk = 0.5; // Chance to pick one of the light sources
+                    
+                    // Direct illumination = light * BRDF * radiance transfer / pdfk * pdfyk
+                    tempColor += l->color * lightIntensity * BRDF * radianceTransfer / (pdfk * pdfyk) * s->color;
                 }
             }
-            
-            if (!shaded) {
-                lights++;
-                float lightIntensity = 0.2 * 1.0/255.0;
-                float BRDF = s->isOren() ? OrenNayarBRDF(pDir, glm::normalize(-scene->cameraDir), normal) : glm::dot(normal, pDir);
-                // TODO: N(light) must be calculated properly
-                // radianceTransfer = dot(N(object), shadowRay) * dot(N(light), -shadowRay)
-                float radianceTransfer = glm::dot(normal, pDir) * glm::dot(-pDir, -pDir);
-                float pdfk = 4.0 * M_PI * l->getRadius() * l->getRadius(); // pdf over sphere
-                float pdfyk = 1.0; // Chance to pick one of the light sources (only one at the moment)
-                
-                // Direct illumination = light * BRDF * radiance transfer / pdfk * pdfyk
-                directIllumination += l->color * lightIntensity * BRDF * radianceTransfer / (pdfk * pdfyk) * s->color;
-            }
+
+            directIllumination += tempColor * (1.0f/(float)shadowRays);
         }
-        
+
         // ----------------------------------------------
         // Add direct and indirect light and return color
         // ----------------------------------------------
-        return (indirectIllumination * 2.0f + directIllumination / M_PI);
+        return (indirectIllumination * 2.0 + directIllumination / M_PI);
     }
 
     // Didn't find any object that intersects

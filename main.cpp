@@ -43,8 +43,8 @@ int main() {
     Sphere s2(glm::vec3(2.0, -3.0, -8.0), 2.0, colorGray);
     Sphere s3(glm::vec3(-2.0, -3.0, -8.0), 2.0, colorGray);
     
-    Sphere l1(glm::vec3(2.0, 4.5, -5.0), 0.2, colorWhite);
-    Sphere l2(glm::vec3(-2.0, 4.5, -5.0), 0.2, colorWhite);
+    Sphere l1(glm::vec3(2.0, 5.0, -8.0), 1.0, colorWhite);
+    Sphere l2(glm::vec3(-2.0, 5.0, -8.0), 1.0, colorWhite);
     
     s1.setRefractive();
     s2.setOren();
@@ -88,7 +88,7 @@ int main() {
             
             // Amount of rays to send into the scene per pixel
             // This is used for Monte Carlo sampling
-            int samples = 5;
+            int samples = 10;
             glm::vec3 color(0.0);
             
             // Shoot rays into scene
