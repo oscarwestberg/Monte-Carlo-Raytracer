@@ -34,25 +34,28 @@ int main() {
     glm::vec3 colorRed(255.0, 0.0, 0.0);
     glm::vec3 colorGreen(0.0, 255.0, 0.0);
     glm::vec3 colorBlue(0.0, 0.0, 255.0);
-    glm::vec3 colorGray(100.0);
+    glm::vec3 colorGray(200.0);
 	glm::vec3 colorWhite(255.0);
+    glm::vec3 colorNone(0.0);
     
-    Sphere s1(glm::vec3(1.0, 1.0, -5.0), 1, colorRed);
-    Sphere s2(glm::vec3(-1.0, 0.0, -8.0), 1.5, colorGreen);
-	Sphere l1(scene.lightPos1, 0.2, colorWhite);
-    s1.setReflective();
-    s2.setRefractive();
+    Sphere s1(glm::vec3(-1.0, -4.0, -6.0), 1.0, colorNone);
+    Sphere s2(glm::vec3(2.0, -2.0, -7.0), 3.0, colorGray);
+    Sphere s3(glm::vec3(-2.0, -3.0, -8.0), 2.0, colorGray);
+    Sphere l1(glm::vec3(0.0, 4.5, -5.0), 0.2, colorWhite);
+    s1.setRefractive();
+    s2.setOren();
     l1.setLight();
     
-    Plane p1(glm::vec3(0.0, 0.0, 1.0), colorGray, glm::vec3(0.0, 0.0, -10)); // Front
-    Plane p2(glm::vec3(0.0, 1.0, 0.0), colorGray, glm::vec3(0.0, -5.0, 0.0)); // Bottom
-    Plane p3(glm::vec3(0.0, -1.0, 0.0), colorGray, glm::vec3(0.0, 5.0, 0.0)); // Top
+    Plane p1(glm::vec3(0.0, 0.0, 1.0), colorWhite, glm::vec3(0.0, 0.0, -10)); // Front
+    Plane p2(glm::vec3(0.0, 1.0, 0.0), colorWhite, glm::vec3(0.0, -5.0, 0.0)); // Bottom
+    Plane p3(glm::vec3(0.0, -1.0, 0.0), colorWhite, glm::vec3(0.0, 5.0, 0.0)); // Top
     Plane p4(glm::vec3(-1.0, 0.0, 0.0), colorGreen, glm::vec3(5.0, 0.0, 0.0)); // Right
     Plane p5(glm::vec3(1.0, 0.0, 0.0), colorRed, glm::vec3(-5.0, 0.0, 0.0)); // Left
     
 	surfaces.push_back(&l1);
     surfaces.push_back(&s1);
     surfaces.push_back(&s2);
+    surfaces.push_back(&s3);
     surfaces.push_back(&p1);
     surfaces.push_back(&p2);
     surfaces.push_back(&p3);
@@ -76,14 +79,13 @@ int main() {
             
             // Amount of rays to send into the scene per pixel
             // This is used for Monte Carlo sampling
-            // Only one ray at the moment
-            int samples = 10;
-            glm::vec3 color(0.0,0.0,0.0);
+            int samples = 5;
+            glm::vec3 color(0.0);
             
             // Shoot rays into scene
             for (int i = 0; i < samples; i++) {
                 Ray ray(&scene);
-                color += ray.trace(rayOrig, rayDir, 0.0, 0);
+                color += ray.trace(rayOrig, rayDir, 0.0, 1);
             }
             
             color /= samples;

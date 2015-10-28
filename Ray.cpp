@@ -11,13 +11,31 @@ Ray::Ray(Scene *s) {
     scene = s;
 }
 
+float OrenNayarBRDF(glm::vec3 lightDir, glm::vec3 eyeDir, glm::vec3 normal) {
+    
+    float roughness = 2.0;
+    roughness *= roughness;
+    
+    float NdotL = glm::dot(normal, lightDir);
+    float NdotV = glm::dot(normal, eyeDir);
+    
+    // Inclination angles
+    float inclinationi = acos(NdotV);
+    float inclinationr = acos(NdotL);
+    
+    float alpha = std::max(inclinationi, inclinationr);
+    float beta = std::min(inclinationi, inclinationr);
+    
+    // Used for azimuth angle
+    float gamma = glm::dot(eyeDir - normal * glm::dot(eyeDir, normal), lightDir - normal * glm::dot(lightDir, normal));
+    
+    float A = 1.0 - 0.5 * (roughness / (roughness + 0.57));
+    float B = 0.45 * (roughness / (roughness + 0.09));
+    
+    return  std::max(0.0f, NdotL) * (A + B * std::max(0.0f, gamma) * sin(alpha) * tan(beta));
+}
+
 glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounces) {
-    
-    // Ray termination
-    if (depth > scene->maxDepth || bounces > scene->maxBounces) {
-        return glm::vec3(0.0, 0.0, 0.0);
-    }
-    
     
     // ----------------------------------------------
 	// Compare ray with every object in scene
@@ -25,6 +43,7 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
     // ----------------------------------------------
 	float t0, t1, tNear = INF;
     Surface *s = nullptr; // Pointer to closest object
+    Sphere *l = dynamic_cast<Sphere*>(scene->objects->front()); // Pointer to light
     
 	for (auto &o : *scene->objects) {
 		if (o->intersects(rayOrig, rayDir, t0, t1)) {
@@ -46,98 +65,113 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
     
         // p is the point of intersection
         // pDir is a normalized vector from p towards light source
-        glm::vec3 color(0.0);
-        glm::vec3 localColor(0.0);
+        glm::vec3 directIllumination (0.0);
+        glm::vec3 indirectIllumination (0.0);
+        
         glm::vec3 p = rayOrig + rayDir * tNear;
-        glm::vec3 pDir = scene->lightPos1 - p;
+        glm::vec3 pDir = l->getCenter() - p; // Vector towards light
         glm::vec3 normal = s->getNormal(p);
-        // r is the reflected direction
-        glm::vec3 r = rayDir - 2 * glm::dot(rayDir, normal) * normal;
+        glm::vec3 r = rayDir - 2 * glm::dot(rayDir, normal) * normal; // reflected direction
         
         float dist = glm::length(pDir);
         pDir = glm::normalize(pDir);
         
-        bounces++;
-        depth += dist;
-        
         // ----------------------------------------------
+        // Indirect illumination
         // If the object is reflective or refractive, calculate new ray(s)
         // ----------------------------------------------
-        if (s->isReflective() || s->isRefractive()) {
+        if (s->isRefractive()) {
             
             // If the object is refractive, create refractive ray
-            // Not implemented yet
-            if (s->isRefractive()) {
-                
-                // Calculate new refractive ray
-                // Need to do a flip if we are inside the object
-                glm::vec3 n = normal;
-                const float index = 1/1.5;
-//                Sphere *temp = static_cast <Sphere*>(s);
-//                if (glm::length(temp->getCenter() - p) < temp->getRadius()) n = -n;
-                
-                glm::vec3 t = glm::normalize(glm::refract(rayDir, n, index));
-                
-                Ray ray(scene);
-                color += ray.trace(p, t, depth, bounces);
-            }
+            // Calculate new refractive ray
+            // Need to do a flip if we are inside the object
+            //glm::vec3 n = normal;
+            //const float index = 1/1.5;
+            //Sphere *temp = static_cast <Sphere*>(s);
+            //if (glm::length(temp->getCenter() - p) < temp->getRadius()) n = -n;
+            
+            //glm::vec3 t = glm::normalize(glm::refract(rayDir, n, index));
+            
+            Ray ray(scene);
+            //indirectIllumination += ray.trace(p, t, depth, bounces);
          
             // Calculate reflective ray for both refracive and reflective materials
             // Trace reflective ray
-            Ray ray(scene);
-            color += ray.trace(p, r, depth, bounces);
+            indirectIllumination += ray.trace(p, r, depth, bounces++);
+            indirectIllumination /= (float)bounces;
         }
+        
         // ----------------------------------------------
+        // Indirect illumination
         // Material is diffuse, do Monte Carlo stuff
         // ----------------------------------------------
-        else {
+        else if(bounces < scene->maxBounces) {
             // Russian roulette
             float r1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
             float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+            float absorption = 0.3;
             
             // Ray is scattered
-            if (r1 > 0.8) {
-                float inclination = (M_PI * 2 * r1);
-                float azimuth = (acos(sqrt(r2)));
-                glm::vec3 tangent = glm::normalize(glm::cross(normal, normal + glm::vec3(1.0)));
-                
+            if (static_cast <float> (rand()) / static_cast <float> (RAND_MAX) > absorption) {
+
                 // New random direction over hemisphere
-                glm::vec3 newDir = normal;
-                if (normal.y > 0) tangent.z = std::abs(tangent.z);
+                float inclination = 2.0 * M_PI * r1;
+                float azimuth = acos(2.0 * r2 - 1.0);
+                float u = cos(azimuth);
                 
-                // Rotate direction around itself and its tangent
-                newDir = glm::rotate(newDir, inclination, tangent);
-                newDir = glm::rotate(newDir, azimuth, normal);
+                float x	= sqrt(1 - u * u) * cos(inclination);
+                float y	= sqrt(1 - u * u) * sin(inclination);
+                float z	= u;
                 
-                // Add BRDF & divide by pdf
+                // New direction. If it points the wrong way, change direction
+                glm::vec3 newDir(x, y, z);
+                if (glm::dot(normal, newDir) < 0) newDir = -newDir;
+                
+                // pdf  - over hemisphere
+                // cos  - relationship between normal and the direction reflected light will come from
+                // BRDF - Lambertian or Oren-Nayar
+                float pdf = 2.0f * M_PI;
+                float cos = glm::dot(normal, newDir);
+                float BRDF = s->isOren() ? OrenNayarBRDF(newDir, glm::normalize(-scene->cameraDir), normal) : glm::dot(normal, newDir);
+                
                 Ray ray(scene);
-                color += ray.trace(p, newDir, 0, 0);
-            }
-            // Ray is absorbed
-            else {
-                float lambert = glm::dot(normal, pDir);
-                localColor += lambert * s->color;
+                
+                indirectIllumination = ray.trace(p, newDir, depth, bounces++) * cos * BRDF / pdf;
+                indirectIllumination /= ((1 - absorption));
             }
         }
         
         // ----------------------------------------------
+        // Direct illumination
         // Calculate shadow rays
         // ----------------------------------------------
         bool shaded = false;
         
-        // Shoot shadow ray(s) to random position on light (not random not though)
-        // Does not account for any sphere that is a light at the moment
-        for (auto &o : *scene->objects)
-            if (o->intersects(p, pDir, t0, t1))
+        // Shoot shadow ray(s) to random position on light (not random now though)
+        for (auto &o : *scene->objects) {
+            if (o->intersects(p, pDir, t0, t1)) {
                 if (t0 < dist && !o->isLight()) shaded = true;
+            }
+        }
+        
+        if (!shaded) {
+            float lightIntensity = 0.8 * 1.0/255.0;
+            float BRDF = s->isOren() ? OrenNayarBRDF(pDir, glm::normalize(-scene->cameraDir), normal) : glm::dot(normal, pDir);
+            // TODO: N(light) must be calculated properly
+            float radianceTransfer = glm::dot(normal, pDir) * glm::dot(-pDir, -pDir);
+            // radianceTransfer = dot(N(object), shadowRay) * dot(N(light), -shadowRay)
+            float pdfk = 4.0 * M_PI * l->getRadius() * l->getRadius(); // pdf over sphere
+            float pdfyk = 1.0; // Chance to pick one of the light sources (only one at the moment)
+            
+            // Direct illumination = light * BRDF * radiance transfer / pdfk * pdfyk
+            directIllumination = l->color * lightIntensity * BRDF * radianceTransfer / (pdfk * pdfyk);
+            directIllumination *= s->color;
+        }
         
         // ----------------------------------------------
-        // Given all previous parameters evaluate the local shading model and return color
+        // Add direct and indirect light and return color
         // ----------------------------------------------
-        if (!shaded) color += localColor;
-        else color += localColor * (float)0.3;
-        
-        return color / (float)bounces;
+        return (indirectIllumination * 2.0f + directIllumination / M_PI);
     }
 
     // Didn't find any object that intersects

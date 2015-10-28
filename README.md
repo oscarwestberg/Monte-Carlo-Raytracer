@@ -18,11 +18,9 @@ For the course TNCG15 at Linköping University. A Monte-Carlo raytracer that mod
 * http://www.scratchapixel.com/index.php  
 
 # Todo
-* Several shadow rays  
-* Refractive rays for the transparent reflector  
-* Diffuse material scattering (Monte Carlo stuff)  
-* Oren-Nayar reflector  
+* Refractive rays for the transparent reflector   
 * Second light source  
-* Cube Surface subclass  
-* Add cube to scene  
-* Anti aliasing  
+* Report  
+  
+* Several shadow rays  
+* Anti Aliasing  

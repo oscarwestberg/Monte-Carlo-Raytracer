@@ -23,8 +23,6 @@ public:
     glm::vec3 cameraDir;
     glm::vec3 cameraUp;
     
-    glm::vec3 lightPos1;
-    
     Scene(std::vector<Surface*>* o);
 };
 

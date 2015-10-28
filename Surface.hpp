@@ -17,7 +17,7 @@ class Surface
 {
 private:
     bool light = false;
-    bool reflective = false;
+    bool oren = false;
     bool refractive = false;
 public:
     glm::vec3 color;
@@ -28,11 +28,11 @@ public:
     
     void setLight() { light = true; };
     void setRefractive() { refractive = true; };
-    void setReflective() { reflective = true; };
+    void setOren() { oren = true; };
     
     bool isLight() { return light; }
     bool isRefractive() { return refractive; }
-    bool isReflective() { return reflective; }
+    bool isOren() { return oren; };
 };
 
 #endif /* Surface_hpp */
