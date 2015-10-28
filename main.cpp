@@ -35,7 +35,7 @@ int main() {
     Sphere s1(glm::vec3(2.0, 1.5, -5.0), 1, colorRed);
     Sphere s2(glm::vec3(-1.5, -2.0, -5.0), 1.5, colorGreen);
 	Sphere l1(scene.lightPos1, 0.2, colorWhite);
-    s1.setRefractive();
+    s1.setReflective();
     s2.setRefractive();
     l1.setLight();
     

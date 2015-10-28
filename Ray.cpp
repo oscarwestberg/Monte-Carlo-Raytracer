@@ -70,7 +70,7 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
         // ----------------------------------------------
         if (s->isReflective() || s->isRefractive()) {
                        
-            // Calculate new refractive ray
+            // Calculate values used for determining refractive ray from air to glass
 			glm::vec3 incident = rayDir;
 			float n1 = 1.0f;
 			float n2 = 1.4f;
@@ -79,47 +79,48 @@ glm::vec3 Ray::trace(glm::vec3 rayOrig, glm::vec3 rayDir, float depth, int bounc
 			float cos1 = glm::dot(incident, -n);
 			float cos2 = sqrt(1.0f - index*index *(1.0f - cos1*cos1));
 			float sinT2 = index*index * (1.0f - cos1*cos1);
-			//cout << sinT2 << endl;
+
+			// Calculate refractive ray direction
 			glm::vec3 refractDir = index*incident + (float)(index*cos1 - cos2)*n;
-				
+			
+			// Calculate point of exit from Sphere
 			Sphere * sphereHit = static_cast <Sphere*>(s);
 			glm::vec3 sphereCenter = sphereHit->getCenter();
-			//create vector to center
+			// Create vector to center
 			glm::vec3 pToCenter = sphereCenter - p;
-			//get distance to exit by using the projection formula
+			// Get distance to exit by using the projection formula
+			// New point is startpoint + new direction * new distance
 			glm::vec3 exitPoint = p + (2.0f * glm::dot(pToCenter, refractDir))*refractDir;
 
-			//get the new direction in the same way as before
+			// Calculate values used for determining refractive ray from glass to air
 			incident = refractDir;
 			n = - s->getNormal(exitPoint);
 			index = n2 / n1;
 			cos1 = glm::dot(incident, -n);
 			cos2 = sqrt(1.0f - index*index *(1.0f - cos1*cos1));
-			refractDir = index*incident + (float)(index*cos1 - cos2)*n;
 
-			
+			// Calculate new refractive ray direction
+			refractDir = index*incident + (float)(index*cos1 - cos2)*n;
+	
+			// Set value R based on object material
 			float R;
-			
 			if (s->isReflective() || sinT2 > 1.0f) {
 				R = 1.0f;
-				
-				
 			}
 			else {
 				float r0 = pow((n1 - n2) / (n1 + n2), 2);
 				R = r0 + (1.0f - r0)*(pow((1.0f - cos1), 5));
 			}
-
 			float r01 = (float)rand() / RAND_MAX;
 
+			// Create new ray
 			Ray ray(scene);
 			if (r01 < R) {
-				//reflection
+				// Reflection. For all reflective objects and for some rays at refractive objects
 				color += ray.trace(p, r, depth, bounces);
-				//cout << ("Hej");
 			}
 			else {
-				//refraction
+				// Refraction, only for refractive objects
 				color += ray.trace(exitPoint, refractDir, depth, bounces);
 			}
         }
