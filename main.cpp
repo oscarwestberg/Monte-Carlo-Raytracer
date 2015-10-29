@@ -24,6 +24,7 @@ int main() {
     std::vector<Surface*> surfaces;
     std::vector<Sphere*> lights;
     Scene scene(&surfaces, &lights);
+    int samples = 0;
     
     // Timer
     std::clock_t start = std::clock();;
@@ -88,7 +89,7 @@ int main() {
             
             // Amount of rays to send into the scene per pixel
             // This is used for Monte Carlo sampling
-            int samples = 10;
+            samples = 10;
             glm::vec3 color(0.0);
             
             // Shoot rays into scene
@@ -105,15 +106,15 @@ int main() {
     // ----------------------------------------------
     // Save radianceArray to file
     // ----------------------------------------------
+    duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+    
     FILE *file = fopen("../image.ppm", "w");
-    fprintf(file, "P3\n%d %d\n%d\n", screenWidth, screenHeight, 255);
+    fprintf(file, "P3\n# Duration: %f\n# Samples per pixel: %i\n%d %d\n%d\n", duration, samples, screenWidth, screenHeight, 255);
     
     for (int i = 0; i < screenWidth * screenHeight; i++)
         fprintf(file," %i %i %i", (int)radianceArray.at(i).x, (int)radianceArray.at(i).y, (int)radianceArray.at(i).z);
     
     std::cout << "Created file\n";
-    
-    duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
     std::cout << "With total time: " << duration << "\n";
     
     return 0;
