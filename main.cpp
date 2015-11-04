@@ -89,7 +89,7 @@ int main() {
             
             // Amount of rays to send into the scene per pixel
             // This is used for Monte Carlo sampling
-            samples = 10;
+            samples = 100;
             glm::vec3 color(0.0);
             
             // Shoot rays into scene
